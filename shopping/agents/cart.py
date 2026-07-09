@@ -1,17 +1,20 @@
 import os
-from google.adk.agents import Agent, SequentialAgent, ParallelAgent, LlmAgent
+
+from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 from google.adk.tools import ToolContext
 
-from .products import products
-from .order_data import orders, OrderStatus, get_next_order_id
-from .inventory import inventory_data_agent
+from policymesh.config import settings
 
-model = "gemini-2.5-flash"
+from .inventory import inventory_data_agent
+from .order_data import get_next_order_id, orders
+from .products import products
+
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
 def get_order(tool_context: ToolContext):

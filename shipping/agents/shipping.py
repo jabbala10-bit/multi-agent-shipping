@@ -1,16 +1,24 @@
 import os
-import json
-from pydantic import BaseModel, Field
-from typing import Optional, AsyncGenerator, List
-from google.adk.agents import Agent, SequentialAgent, ParallelAgent, LlmAgent, InvocationContext, BaseAgent
-from google.adk.events import Event
-from google.adk.tools.tool_context import ToolContext
-from toolbox_core import ToolboxSyncClient
-from .rates import SHIPPING_RATES, TAX_RATES
-from .products import products
 
 # OrderStatus Enum for consistency with DB strings
 from enum import Enum
+
+from google.adk.agents import (
+    Agent,
+    LlmAgent,
+    ParallelAgent,
+    SequentialAgent,
+)
+from google.adk.tools.tool_context import ToolContext
+from pydantic import BaseModel, Field
+
+from policymesh.config import settings
+from policymesh.toolbox import load_tool
+
+from .products import products
+from .rates import SHIPPING_RATES, TAX_RATES
+
+
 class OrderStatus(Enum):
     PENDING = "pending"
     PLACED = "placed"
@@ -18,24 +26,31 @@ class OrderStatus(Enum):
     SHIPPED = "shipped"
     RECEIVED = "received"
 
-model = "gemini-2.5-flash"
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
-# --- Database Connection ---
-toolbox_url = os.environ.get("TOOLBOX_URL", "http://127.0.0.1:5000")
-print(f"Connecting to Toolbox at {toolbox_url}")
-db_client = ToolboxSyncClient(toolbox_url)
-
-get_order_tool = db_client.load_tool("get-order")
-get_open_order_tool = db_client.load_tool("get-open-order-for-user")
-update_order_address_tool = db_client.load_tool("update-order-address")
-update_order_status_tool = db_client.load_tool("update-order-status")
-update_order_costs_tool = db_client.load_tool("update-order-costs")
+get_order_tool = load_tool(os.environ.get("SHIPPING_GET_ORDER_TOOL", "get-order"), settings.shipping_toolbox_url)
+get_open_order_tool = load_tool(
+    os.environ.get("SHIPPING_GET_OPEN_ORDER_TOOL", "get-open-order-for-user"),
+    settings.shipping_toolbox_url,
+)
+update_order_address_tool = load_tool(
+    os.environ.get("SHIPPING_UPDATE_ORDER_ADDRESS_TOOL", "update-order-address"),
+    settings.shipping_toolbox_url,
+)
+update_order_status_tool = load_tool(
+    os.environ.get("SHIPPING_UPDATE_ORDER_STATUS_TOOL", "update-order-status"),
+    settings.shipping_toolbox_url,
+)
+update_order_costs_tool = load_tool(
+    os.environ.get("SHIPPING_UPDATE_ORDER_COSTS_TOOL", "update-order-costs"),
+    settings.shipping_toolbox_url,
+)
 
 # --- Schemas ---
 
@@ -59,7 +74,7 @@ class ComputeOrderOutput(BaseModel):
 class AddressOutput(BaseModel):
     name: str
     address_1: str
-    address_2: Optional[str] = None
+    address_2: str | None = None
     city: str
     state: str
     postal_code: str
@@ -84,7 +99,7 @@ def calculate_shipping_cost(shipping_type: str = "standard") -> dict:
     cost = SHIPPING_RATES.get(shipping_type.lower(), SHIPPING_RATES["standard"])
     return {"shipping_cost": cost, "shipping_type": shipping_type}
 
-def calculate_taxes_cost(cart_items: List[str], state: str) -> dict:
+def calculate_taxes_cost(cart_items: list[str], state: str) -> dict:
     """Calculates the tax cost for an order based on the shipping state.
 
     Args:
@@ -100,14 +115,14 @@ def calculate_taxes_cost(cart_items: List[str], state: str) -> dict:
     tax_amount = subtotal * rate
     return {"tax_amount": round(tax_amount, 2), "state": state, "subtotal": subtotal}
 
-def compute_subtotal(cart_items: List[str]) -> float:
+def compute_subtotal(cart_items: list[str]) -> float:
     subtotal = 0.0
     for product_id in cart_items:
         if product_id in products:
             subtotal += products[product_id]["price"]
     return subtotal
 
-def compute_order_cost(cart_items: List[str], shipping_cost: float, tax_amount: float) -> dict:
+def compute_order_cost(cart_items: list[str], shipping_cost: float, tax_amount: float) -> dict:
     """Compute the order cost by adding shipping and taxes, and updates the order.
 
     Args:

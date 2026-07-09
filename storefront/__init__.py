@@ -1,1 +1,1 @@
-from . import agent
+"""Storefront agent package."""

@@ -1,14 +1,18 @@
 import os
-from pydantic import BaseModel, Field
-from google.adk.agents import Agent, LlmAgent
-from .products import products, product_counts
 
-model = "gemini-2.5-flash"
+from google.adk.agents import Agent, LlmAgent
+from pydantic import BaseModel, Field
+
+from policymesh.config import settings
+
+from .products import product_counts, products
+
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
 def check_inventory(product_id: str):

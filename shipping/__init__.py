@@ -1,1 +1,1 @@
-from . import agent
+"""Shipping agent package."""

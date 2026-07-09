@@ -1,15 +1,20 @@
 import os
-from google.adk.agents import Agent
-from .agents.search import search_agent
-from .agents.inventory import inventory_agent
-from .agents.cart import cart_agent
 
-model = "gemini-2.5-flash"
+from google.adk.agents import Agent
+
+from policymesh.config import settings
+
+from .agents.cart import cart_agent
+from .agents.inventory import inventory_agent
+from .agents.product_info import product_qa_agent
+from .agents.search import search_agent
+
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
 orchestrator_instruction = read_prompt("agent-prompt.txt")
@@ -19,5 +24,5 @@ root_agent = Agent(
     description="Orchestrates the shopping experience.",
     model=model,
     instruction=orchestrator_instruction,
-    sub_agents=[search_agent, inventory_agent, cart_agent],
+    sub_agents=[search_agent, inventory_agent, cart_agent, product_qa_agent],
 )

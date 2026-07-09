@@ -1,7 +1,5 @@
 import logging
 import os
-from google.api_core.client_options import ClientOptions
-from google.cloud import discoveryengine_v1 as discoveryengine
 
 # Definition of a tool that accesses a Vertex AI Search Datastore
 
@@ -21,6 +19,9 @@ def search(
     engine_id: str,
     search_query: str,
 ) -> list[str]:
+    from google.api_core.client_options import ClientOptions
+    from google.cloud import discoveryengine_v1 as discoveryengine
+
     #  For more information, refer to:
     # https://cloud.google.com/generative-ai-app-builder/docs/locations#specify_a_multi-region_for_your_data_store
     client_options = (

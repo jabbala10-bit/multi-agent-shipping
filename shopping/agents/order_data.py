@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class OrderStatus(Enum):
     PLACED = "placed"
     PACKAGED = "packaged"

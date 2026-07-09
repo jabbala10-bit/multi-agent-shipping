@@ -1,15 +1,19 @@
 import os
-from google.adk.agents import Agent
-from .agents.shipping import shipping_agent
-from .agents.inquiry import inquiry_agent
 
-model = "gemini-2.5-flash"
+from google.adk.agents import Agent
+
+from policymesh.config import settings
+
+from .agents.inquiry import inquiry_agent
+from .agents.shipping import shipping_agent
+
+model = settings.model
 
 # Helper to read prompt
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
 # Read instructions

@@ -1,1 +1,1 @@
-from .shopping import agent
+"""Shopping agent package."""

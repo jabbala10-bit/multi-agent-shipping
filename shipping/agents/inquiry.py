@@ -1,21 +1,19 @@
 import os
-from google.adk.agents import Agent
-from toolbox_core import ToolboxSyncClient
 
-model = "gemini-2.5-flash"
+from google.adk.agents import Agent
+
+from policymesh.config import settings
+from policymesh.toolbox import load_tool
+
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
-# --- Database Connection ---
-toolbox_url = os.environ.get("TOOLBOX_URL", "http://127.0.0.1:5000")
-print(f"Connecting to Toolbox at {toolbox_url}")
-db_client = ToolboxSyncClient(toolbox_url)
-
-get_order_tool = db_client.load_tool("get-order")
+get_order_tool = load_tool(os.environ.get("SHIPPING_GET_ORDER_TOOL", "get-order"), settings.shipping_toolbox_url)
 
 inquiry_instruction = read_prompt("inquiry-prompt.txt")
 

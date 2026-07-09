@@ -1,13 +1,17 @@
 import os
-from google.adk.agents import Agent, LlmAgent
+
+from google.adk.agents import LlmAgent
+
+from policymesh.config import settings
+
 from .datastore import datastore_search_tool
 
-model = "gemini-2.5-flash"
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
 qa_instruction = read_prompt("product-qa-prompt.txt")

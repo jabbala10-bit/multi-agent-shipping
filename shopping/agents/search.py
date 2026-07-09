@@ -1,25 +1,29 @@
 import os
 import random
-from typing import AsyncGenerator
-from google.adk.agents import Agent, LlmAgent, BaseAgent, InvocationContext
-from google.adk.events import Event
-from toolbox_core import ToolboxSyncClient
+from collections.abc import AsyncGenerator
 
-model = "gemini-2.5-flash"
+from google.adk.agents import Agent, BaseAgent, InvocationContext, LlmAgent
+from google.adk.events import Event
+
+from policymesh.config import settings
+from policymesh.toolbox import load_tool
+
+model = settings.model
 
 def read_prompt(filename):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "../prompts", filename)
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return f.read()
 
-# Connect to Toolbox
-toolbox_url = os.environ.get("TOOLBOX_URL", "http://127.0.0.1:5001")
-print(f"Connecting to Toolbox at {toolbox_url}")
-db_client = ToolboxSyncClient(toolbox_url)
-
-# Load the tool from the toolbox (MCP)
-search_products_tool = db_client.load_tool("search-products")
+search_products_tool = load_tool(
+    os.environ.get("SHOPPING_SEARCH_PRODUCTS_TOOL", "search-products"),
+    settings.shopping_toolbox_url,
+)
+search_products_broad_tool = load_tool(
+    os.environ.get("SHOPPING_SEARCH_PRODUCTS_BROAD_TOOL", "search-products"),
+    settings.shopping_toolbox_url,
+)
 
 search_instruction = read_prompt("search-prompt.txt")
 search_broad_instruction = read_prompt("search-broad-prompt.txt")
@@ -30,7 +34,7 @@ search_agent_exact = LlmAgent(
     description="Searches for products using phrase matching.",
     model=model,
     instruction=search_instruction,
-    tools=[search_products],
+    tools=[search_products_tool],
 )
 
 # New Broad Search Agent
@@ -39,7 +43,7 @@ search_agent_broad = LlmAgent(
     description="Searches for products matching any query word.",
     model=model,
     instruction=search_broad_instruction,
-    tools=[search_products_broad],
+    tools=[search_products_broad_tool],
 )
 
 class SearchRouter(BaseAgent):
