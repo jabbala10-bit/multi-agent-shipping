@@ -9,7 +9,9 @@ PolicyMesh keeps runnable agent packages at the repository root because Google A
 - `shipping/`: shipping-domain agents, prompts, tax/shipping calculation, order summary, and approval workflow.
 - `storefront/`: front-door orchestration and remote A2A delegation.
 - `tests/`: fast unit and smoke tests that must run without external services.
-- `docs/`: roadmap, SQL, Toolbox configuration, and engineering notes.
+- `data/`: sample product manuals and other non-code data used by retrieval or demos.
+- `databases/`: SQL seeds, schema snippets, and database-facing Toolbox configuration.
+- `docs/`: roadmap and engineering notes.
 - `infra/`: local/deployment infrastructure notes and future IaC modules.
 
 ## Dependency Policy

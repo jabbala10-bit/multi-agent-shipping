@@ -55,7 +55,7 @@ See [.env.example](../.env.example) for all currently supported values.
 docker compose -f docker-compose.local.yml up -d
 ```
 
-This starts MySQL and loads the SQL files under `docs/`. The Toolbox config in `docs/tools.yaml` expects a `storefront` database.
+This starts MySQL and loads the SQL files under `databases/sql/`. The Toolbox config in `databases/tools.yaml` expects a `storefront` database.
 
 ## CI
 

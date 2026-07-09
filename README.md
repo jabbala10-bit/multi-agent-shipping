@@ -18,7 +18,9 @@ policymesh/
 |-- storefront/              # Storefront ADK/A2A orchestrator package
 |-- tests/                   # Fast smoke/config/tool tests
 |-- scripts/                 # Thin shell wrappers for local commands
-|-- docs/                    # Roadmap, SQL seeds, Toolbox config, notes
+|-- data/                    # Product manuals and other sample data
+|-- databases/               # SQL seeds and Toolbox database config
+|-- docs/                    # Roadmap and engineering notes
 |-- infra/                   # Infrastructure notes and future IaC home
 |-- docker-compose.local.yml # Local MySQL bootstrap
 |-- pyproject.toml           # Python project, dependency, lint, test config
@@ -64,7 +66,7 @@ Start the local database:
 docker compose -f docker-compose.local.yml up -d
 ```
 
-The Toolbox config lives at [docs/tools.yaml](docs/tools.yaml). Run your Toolbox service against that file and set the URLs in `.env`:
+The Toolbox config lives at [databases/tools.yaml](databases/tools.yaml). Run your Toolbox service against that file and set the URLs in `.env`:
 
 ```text
 SHOPPING_TOOLBOX_URL=http://127.0.0.1:5001

@@ -4,8 +4,8 @@ This directory is reserved for deployment and operations assets as the project m
 
 Current local infrastructure lives at the repository root:
 
-- `docker-compose.local.yml`: local MySQL service seeded from `docs/*.sql`.
-- `docs/tools.yaml`: Toolbox tool definitions for order, cart, inventory, and search operations.
+- `docker-compose.local.yml`: local MySQL service seeded from `databases/sql/*.sql`.
+- `databases/tools.yaml`: Toolbox tool definitions for order, cart, inventory, and search operations.
 
 Recommended future additions:
 
