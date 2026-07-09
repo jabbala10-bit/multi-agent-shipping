@@ -5,22 +5,22 @@ products = {
     "P001": {
         "name": "Wireless Headphones",
         "description": "Noise cancelling over-ear headphones",
-        "price": 299.99,
+        "price": 299.99
     },
     "P002": {
         "name": "Smartphone Stand",
         "description": "Adjustable aluminum stand for all smartphones",
-        "price": 19.99,
+        "price": 19.99
     },
     "P003": {
         "name": "Bluetooth Speaker",
         "description": "Portable waterproof speaker with 20h battery life",
-        "price": 59.99,
+        "price": 59.99
     },
     "P004": {
         "name": "USB-C Cable",
         "description": "2-meter braided fast charging cable",
-        "price": 12.99,
+        "price": 12.99
     },
     "P005": {
         "name": "Portable Charger",
@@ -89,12 +89,7 @@ product_counts = {
     "P009": 300,
     "P010": 60,
     "P011": 80,
-    "P012": 4,
+    "P012": 45,
     "P013": 120,
     "P014": 25
-}
-
-# Shared dictionary for reorder status
-reorder_status = {
-    "P003": "BACKORDERED"
 }
