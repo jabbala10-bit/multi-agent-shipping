@@ -1,9 +1,10 @@
 import os
 from typing import Optional
-from google.adk.agents import Agent
+from google.adk.agents import Agent, SequentialAgent, ParallelAgent, LlmAgent
 
 from .products import products
 from .order_data import orders, OrderStatus, get_next_order_id
+from .inventory import inventory_data_agent
 
 model = "gemini-2.5-flash"
 
@@ -15,9 +16,7 @@ def read_prompt(filename):
 
 def get_order(order_id: Optional[str] = None):
     """
-    Retrieves the order.
-    If no order ID is provided, creates a new one.
-    If an order_id has already been created, then you MUST use it.
+    Retrieves the order. If no order ID is provided, creates a new one.
     
     Args:
         order_id: Optional existing order ID.
@@ -53,12 +52,34 @@ def add_to_cart(order_id: str, product_id: str):
     order["cart"].append(product_id)
     return {"status": "success", "message": f"Added {products[product_id]['name']} to cart.", "cart": order["cart"]}
 
-cart_instruction = read_prompt("cart-prompt.txt")
+# --- Sub-Agents ---
 
-cart_agent = Agent(
-    name="cart_agent",
-    description="Manages user shopping carts.",
+get_order_agent = LlmAgent(
+    name="get_order_agent",
+    description="Ensures an active order session exists.",
     model=model,
-    instruction=cart_instruction,
-    tools=[get_order, add_to_cart],
+    instruction=read_prompt("get-order-prompt.txt"),
+    tools=[get_order],
+)
+
+add_item_agent = LlmAgent(
+    name="add_item_agent",
+    description="Adds the item to the cart.",
+    model=model,
+    instruction=read_prompt("add-item-prompt.txt"),
+    tools=[add_to_cart],
+)
+
+# Parallel Prep: Get Order + Check Inventory
+cart_prep_agent = ParallelAgent(
+    name="cart_prep_agent",
+    description="Prepares for adding to cart by ensuring order exists and checking inventory.",
+    sub_agents=[get_order_agent, inventory_data_agent],
+)
+
+# Sequential Workflow: Prep -> Add Item
+cart_agent = SequentialAgent(
+    name="cart_agent",
+    description="Manages adding items to the cart with validation.",
+    sub_agents=[cart_prep_agent, add_item_agent],
 )
