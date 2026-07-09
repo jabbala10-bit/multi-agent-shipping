@@ -6,26 +6,22 @@ class OrderStatus(Enum):
     SHIPPED = "shipped"
     RECEIVED = "received"
 
-# Shared dictionary
-# Key: order_id (str or int)
+# Shared dictionary for orders
+# Key: order_id (str)
 # Value: dict with keys 'cart', 'address', 'order_status'
 orders = {
-    "1001": {
-        "cart": ["item1", "item2"],
-        "address": {
-            "name": "John Doe",
-            "address_1": "123 Main St",
-            "address_2": "",
-            "city": "Anytown",
-            "state": "CA",
-            "postal_code": "90210"
-        },
-        "order_status": OrderStatus.PLACED
-    },
-    "1002": {
-        "cart": ["item3", "item4"]
-    },
-    "1003": {
-        "cart": ["item5"]
+    "ORDER_001": {
+        "cart": ["P001"],
+        "address": None,
+        "order_status": None
     }
 }
+
+# Global counter for generating unique order IDs
+_order_counter = 1000
+
+def get_next_order_id() -> str:
+    """Generates the next sequential order ID."""
+    global _order_counter
+    _order_counter += 1
+    return f"ORDER_{_order_counter}"
